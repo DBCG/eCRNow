@@ -17,6 +17,6 @@ VOLUME /config
 VOLUME /output
 VOLUME /logs
 
-EXPOSE 8080
+EXPOSE 8081
 RUN rm -fr /usr/local/tomcat/webapps/ROOT.war
 COPY --from=builder /build/target/ecr-now.war /usr/local/tomcat/webapps/ROOT.war

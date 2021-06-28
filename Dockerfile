@@ -7,6 +7,8 @@ COPY src src
 RUN mvn package -Dskip.unit.tests=true -Dskip.integration.tests=true
 
 FROM tomcat as appserver
+RUN sed -i 's/port="8080"/port="8081"/' ${CATALINA_HOME}/conf/server.xml
+EXPOSE 8081
 RUN mkdir /app-artifacts
 COPY documents/app-artifacts /app-artifacts
 
@@ -17,6 +19,5 @@ VOLUME /config
 VOLUME /output
 VOLUME /logs
 
-EXPOSE 8081
 RUN rm -fr /usr/local/tomcat/webapps/ROOT.war
 COPY --from=builder /build/target/ecr-now.war /usr/local/tomcat/webapps/ROOT.war

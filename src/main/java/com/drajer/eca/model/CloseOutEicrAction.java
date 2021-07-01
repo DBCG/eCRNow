@@ -1,5 +1,8 @@
 package com.drajer.eca.model;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.context.FhirVersionEnum;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
 import com.drajer.eca.model.EventTypes.EcrActionTypes;
 import com.drajer.eca.model.EventTypes.JobStatus;
 import com.drajer.eca.model.EventTypes.WorkflowEvent;
@@ -9,15 +12,22 @@ import com.drajer.ecrapp.util.ApplicationUtils;
 import com.drajer.sof.model.LaunchDetails;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Parameters;
 import org.hl7.fhir.r4.model.PlanDefinition.ActionRelationshipType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 public class CloseOutEicrAction extends AbstractAction {
 
   private final Logger logger = LoggerFactory.getLogger(CloseOutEicrAction.class);
+
+  @Value("${eCRFhir.endpoint}")
+  private String eCRonFhirEndpoint;
 
   @Override
   public void execute(Object obj, WorkflowEvent launchType) {
@@ -160,6 +170,33 @@ public class CloseOutEicrAction extends AbstractAction {
                         + LocalDateTime.now().getSecond()
                         + ".xml";
                 ApplicationUtils.saveDataToFile(ecr.getEicrData(), fileName);
+                String fhirVersion =
+                    (details.getFhirVersion() != null) ? details.getFhirVersion() : "4.0.1";
+                FhirContext context =
+                    FhirContext.forCached(FhirVersionEnum.forVersionString(fhirVersion));
+                if (!Strings.isNullOrEmpty(eCRonFhirEndpoint)) {
+                  logger.info(" Executing the submission of the Report");
+
+                  String bundleString = ecr.getEicrData();
+                  Bundle bundle = (Bundle) context.newJsonParser().parseResource(bundleString);
+
+                  IGenericClient client = context.newRestfulGenericClient(eCRonFhirEndpoint);
+                  context.getRestfulClientFactory().setSocketTimeout(30 * 1000);
+                  Bundle responseBundle =
+                      (Bundle)
+                          client
+                              .operation()
+                              .onServer()
+                              .named("$process-message-bundle")
+                              .withParameter(Parameters.class, "content", bundle)
+                              .returnResourceType(Bundle.class)
+                              .encodedJson()
+                              .execute();
+
+                  logger.info(
+                      "Response Bundle:::::{}",
+                      context.newJsonParser().encodeResourceToString(responseBundle));
+                }
 
                 logger.info(" **** End Printing Eicr from CLOSE OUT EICR ACTION **** ");
               }

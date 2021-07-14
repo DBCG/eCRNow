@@ -1,7 +1,10 @@
 package com.drajer.bsa.utils;
 
+import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
 import com.drajer.eca.model.MatchedTriggerCodes;
+import com.google.common.base.Strings;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -13,6 +16,7 @@ import java.util.List;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Parameters;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ValueSet;
 import org.hl7.fhir.r4.model.ValueSet.ConceptReferenceComponent;
@@ -48,6 +52,9 @@ public class BsaServiceUtils {
 
   @Value("${bsa.output.directory}")
   String debugDirectory;
+
+  @Value("${eCRFhir.endpoint}")
+  private String eCRonFhirEndpoint;
 
   private static final String FHIR_PATH_VARIABLE_PREFIX = "%";
 
@@ -188,6 +195,32 @@ public class BsaServiceUtils {
       outStream.writeBytes(data);
     } catch (IOException e) {
       logger.debug(" Unable to write data to file: {}", fileName, e);
+    }
+  }
+
+  public void saveResourceToClient(Resource res) {
+    FhirContext context = FhirContext.forCached(res.getStructureFhirVersionEnum());
+    if (!Strings.isNullOrEmpty(eCRonFhirEndpoint)) {
+      logger.info(" Executing the submission of the Report");
+      if (res instanceof Bundle) {
+        Bundle bundle = (Bundle) res;
+        IGenericClient client = context.newRestfulGenericClient(eCRonFhirEndpoint);
+        context.getRestfulClientFactory().setSocketTimeout(30 * 1000);
+        Bundle responseBundle =
+            (Bundle)
+                client
+                    .operation()
+                    .onServer()
+                    .named("$process-message-bundle")
+                    .withParameter(Parameters.class, "content", bundle)
+                    .returnResourceType(Bundle.class)
+                    .encodedJson()
+                    .execute();
+
+        logger.info(
+            "Response Bundle:::::{}",
+            context.newJsonParser().encodeResourceToString(responseBundle));
+      }
     }
   }
 }

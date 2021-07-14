@@ -117,6 +117,7 @@ public class KarProcessorImpl implements KarProcessor {
 
         logger.info(" Saving Data to file for {}", resEnt.getKey());
         serviceUtils.saveResourceToFile(resEnt.getValue());
+        serviceUtils.saveResourceToClient(resEnt.getValue());
       }
     }
   }

@@ -77,7 +77,7 @@ public class KarParserImpl implements KarParser {
   @Autowired BsaServiceUtils utils;
 
   @Autowired BsaScheduler scheduler;
-  
+
   @Autowired MeasureProcessor measureProcessor;
 
   private static String[] KAR_FILE_EXT = {"json"};
@@ -304,8 +304,8 @@ public class KarParserImpl implements KarParser {
             && dr.getType().contentEquals(ResourceType.MeasureReport.toString())) {
           EvaluateMeasure em = (EvaluateMeasure) (action);
           em.setMeasureReportId(dr.getId());
-          
-          //setup the Measure Processor
+
+          // setup the Measure Processor
           em.setMeasureProcessor(measureProcessor);
         }
       }

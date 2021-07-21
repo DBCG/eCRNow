@@ -5,7 +5,6 @@ import com.drajer.bsa.kar.model.BsaAction;
 import com.drajer.bsa.model.BsaTypes.BsaActionStatusType;
 import com.drajer.bsa.model.KarProcessingData;
 import java.time.LocalDate;
-import java.time.Year;
 import java.util.HashMap;
 import java.util.Set;
 import org.hl7.fhir.r4.model.Coding;
@@ -62,7 +61,8 @@ public class EvaluateMeasure extends BsaAction {
   }
 
   public EvaluateMeasure() {
-    int year = Year.now().getValue();
+    // TODO: test data is set up for 2019
+    int year = 2019;
     periodStart = LocalDate.of(year, 01, 01).toString();
     periodEnd = LocalDate.of(year, 12, 31).toString();
     measureReportId = "";

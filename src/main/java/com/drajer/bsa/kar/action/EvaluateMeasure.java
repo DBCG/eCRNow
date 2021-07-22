@@ -7,6 +7,7 @@ import com.drajer.bsa.model.KarProcessingData;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Set;
+import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Endpoint;
 import org.hl7.fhir.r4.model.MeasureReport;
@@ -62,9 +63,8 @@ public class EvaluateMeasure extends BsaAction {
 
   public EvaluateMeasure() {
     // TODO: test data is set up for 2019
-    int year = 2019;
-    periodStart = LocalDate.of(year, 01, 01).toString();
-    periodEnd = LocalDate.of(year, 12, 31).toString();
+    periodStart = LocalDate.of(2019, 01, 01).toString();
+    periodEnd = LocalDate.of(2020, 01, 01).toString();
     measureReportId = "";
   }
 
@@ -94,21 +94,35 @@ public class EvaluateMeasure extends BsaAction {
               .setAddress(data.getKar().getKarPath())
               .setConnectionType(new Coding().setCode(Constants.HL7_FHIR_FILES));
 
+      String measureUri = getMeasureUri();
+      String patientId = data.getNotificationContext().getPatientId();
+
+      Bundle additionalData = data.getInputResourcesAsBundle();
+
+      logger.info(
+          "evaluating Measure {} for Patient {} for period {} - {} with {} resource(s). Content / terminology bundle is {}.",
+          measureUri,
+          patientId,
+          periodStart,
+          periodEnd,
+          additionalData.hasEntry() ? additionalData.getEntry().size() : 0,
+          data.getKar().getKarPath());
+
       // Evaluate Measure by passing the required parameters
       // Set up and evaluate the measure.
       MeasureReport result =
           measureProcessor.evaluateMeasure(
-              getMeasureUri(),
+              measureUri,
               periodStart,
               periodEnd,
               "subject",
-              data.getNotificationContext().getPatientId(),
+              patientId,
               null, // practitioner
               null, // received on
               endpoint, // Library Bundle
               endpoint, // Terminology Bundle
               null, // Endpoint for data
-              data.getInputResourcesAsBundle()); // Data Bundle
+              additionalData); // Data Bundle
 
       if (result != null) {
 

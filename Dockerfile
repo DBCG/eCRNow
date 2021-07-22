@@ -1,10 +1,10 @@
 FROM maven:3.8.1-adoptopenjdk-11 AS builder
 WORKDIR /build
 COPY pom.xml .
-RUN mvn dependency:resolve dependency:resolve-plugins
+RUN mvn -U dependency:resolve dependency:resolve-plugins
 
 COPY src src
-RUN mvn package -Dskip.unit.tests=true -Dskip.integration.tests=true
+RUN mvn -U package -Dskip.unit.tests=true -Dskip.integration.tests=true
 
 FROM tomcat as appserver
 RUN sed -i 's/port="8080"/port="8081"/' ${CATALINA_HOME}/conf/server.xml

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Resource;
@@ -236,7 +237,14 @@ public class KarProcessingData {
 
         Set<Resource> res = entry.getValue();
 
-        for (Resource r : res) {
+        // Poor man's distinct on Id filter
+        Set<String> set = new HashSet<>(res.size());
+        Set<Resource> uniqueResources =
+            res.stream()
+                .filter(x -> set.add(x.getIdElement().getIdPart()))
+                .collect(Collectors.toSet());
+
+        for (Resource r : uniqueResources) {
           bund.addEntry(new BundleEntryComponent().setResource(r));
         }
       }

@@ -7,10 +7,14 @@ import com.drajer.bsa.scheduler.ScheduledJobData;
 import com.drajer.bsa.service.KarExecutionStateService;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.IdType;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ResourceType;
@@ -239,10 +243,13 @@ public class KarProcessingData {
 
         // Poor man's distinct on Id filter
         Set<String> set = new HashSet<>(res.size());
-        Set<Resource> uniqueResources =
+        Map<IdType, List<Resource>> uniqueResources =
             res.stream()
                 .filter(x -> set.add(x.getIdElement().getIdPart()))
-                .collect(Collectors.toSet());
+                .collect(Collectors.groupingBy(Resource::getIdElement));
+        for (List<Resource> resources : uniqueResources.values()) {
+          resources.stream().max();
+        }
 
         for (Resource r : uniqueResources) {
           bund.addEntry(new BundleEntryComponent().setResource(r));

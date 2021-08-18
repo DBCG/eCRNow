@@ -16,7 +16,7 @@ public class ResourceUtils {
 
         List<T> sorted = groupedById.entrySet().stream()
                 .map(x -> x.getValue().stream()
-                        .sorted(Comparator.comparingInt(y -> y.getMeta() != null && y.getMeta().getVersionId() != null ? Integer.parseInt(y.getMeta().getVersionId()) : 0)).findFirst()
+                        .max(Comparator.comparingInt(y -> y.getMeta() != null && y.getMeta().getVersionId() != null ? Integer.parseInt(y.getMeta().getVersionId()) : 0))
                         .get())
                 .collect(Collectors.toList());
 

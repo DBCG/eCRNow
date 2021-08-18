@@ -1,5 +1,6 @@
 package com.drajer.sof.utils;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,7 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 
 public class ResourceUtils {
 
-    public static <T extends IBaseResource> List<T> deduplicate(List<T> resources) {
+    public static <T extends IBaseResource> List<T> deduplicate(Collection<T> resources) {
         Map<String, List<T>> groupedById = resources.stream().collect(Collectors.groupingBy(
                 x -> x.getIdElement().getResourceType() + "/" + x.getIdElement().getIdPart(), Collectors.toList()));
 

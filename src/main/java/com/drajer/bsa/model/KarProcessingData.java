@@ -5,6 +5,8 @@ import com.drajer.bsa.kar.action.BsaActionStatus;
 import com.drajer.bsa.kar.model.KnowledgeArtifact;
 import com.drajer.bsa.scheduler.ScheduledJobData;
 import com.drajer.bsa.service.KarExecutionStateService;
+import com.drajer.sof.utils.ResourceUtils;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -241,15 +243,7 @@ public class KarProcessingData {
 
         Set<Resource> res = entry.getValue();
 
-        // Poor man's distinct on Id filter
-        Set<String> set = new HashSet<>(res.size());
-        Map<IdType, List<Resource>> uniqueResources =
-            res.stream()
-                .filter(x -> set.add(x.getIdElement().getIdPart()))
-                .collect(Collectors.groupingBy(Resource::getIdElement));
-        for (List<Resource> resources : uniqueResources.values()) {
-          resources.stream().max();
-        }
+        List<Resource> uniqueResources = ResourceUtils.deduplicate(res);
 
         for (Resource r : uniqueResources) {
           bund.addEntry(new BundleEntryComponent().setResource(r));

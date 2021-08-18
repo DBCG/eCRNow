@@ -201,11 +201,11 @@ public class BsaServiceUtils {
   public void saveResourceToClient(Resource res) {
     FhirContext context = FhirContext.forCached(res.getStructureFhirVersionEnum());
     if (!Strings.isNullOrEmpty(eCRonFhirEndpoint)) {
+      IGenericClient client = context.newRestfulGenericClient(eCRonFhirEndpoint);
+      context.getRestfulClientFactory().setSocketTimeout(30 * 1000);
       logger.info(" Executing the submission of the Report");
       if (res instanceof Bundle) {
         Bundle bundle = (Bundle) res;
-        IGenericClient client = context.newRestfulGenericClient(eCRonFhirEndpoint);
-        context.getRestfulClientFactory().setSocketTimeout(30 * 1000);
         Bundle responseBundle =
             (Bundle)
                 client
@@ -220,6 +220,10 @@ public class BsaServiceUtils {
         logger.info(
             "Response Bundle:::::{}",
             context.newJsonParser().encodeResourceToString(responseBundle));
+      } else {
+        logger.debug(
+            "Unexpected resource for save to client : {}",
+            context.newJsonParser().encodeResourceToString(res));
       }
     }
   }

@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Resource;
@@ -43,7 +42,9 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
 
   @Test
   public void getNotificationContextDiabetesNumerCMS122_2Test() {
-    Bundle bund = getNotificationBundle("Bsa/Diabetes/numer-CMS122-2-Patient/numer-CMS122-2-notification-bundle.json");
+    Bundle bund =
+        getNotificationBundle(
+            "Bsa/Diabetes/numer-CMS122-2-Patient/numer-CMS122-2-notification-bundle.json");
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -58,7 +59,9 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
 
   @Test
   public void getNotificationContextDiabetesDenomCMS122_3Test() {
-    Bundle bund = getNotificationBundle("Bsa/Diabetes/denom-3-CMS122-Patient/denom-3-CMS122-notification-bundle.json");
+    Bundle bund =
+        getNotificationBundle(
+            "Bsa/Diabetes/denom-3-CMS122-Patient/denom-3-CMS122-notification-bundle.json");
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -73,7 +76,9 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
 
   @Test
   public void getNotificationContextDiabetesDenomCMS122Test() {
-    Bundle bund = getNotificationBundle("Bsa/Diabetes/denom-CMS122-Patient/denom-CMS122-notification-bundle.json");
+    Bundle bund =
+        getNotificationBundle(
+            "Bsa/Diabetes/denom-CMS122-Patient/denom-CMS122-notification-bundle.json");
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -88,7 +93,9 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
 
   @Test
   public void getNotificationContextDiabetesDenomExclCMS122Test() {
-    Bundle bund = getNotificationBundle("Bsa/Diabetes/denomexcl-CMS122-Patient/denomexcl-CMS122-notification-bundle.json");
+    Bundle bund =
+        getNotificationBundle(
+            "Bsa/Diabetes/denomexcl-CMS122-Patient/denomexcl-CMS122-notification-bundle.json");
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -103,7 +110,9 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
 
   @Test
   public void getNotificationContextDiabetesNumerCMS122Test() {
-    Bundle bund = getNotificationBundle("Bsa/Diabetes/numer-CMS122-Patient/numer-CMS122-notification-bundle.json");
+    Bundle bund =
+        getNotificationBundle(
+            "Bsa/Diabetes/numer-CMS122-Patient/numer-CMS122-notification-bundle.json");
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -117,16 +126,21 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
   }
 
   private void mockBasicEhrDataScenario(String contentName, String scenario) {
-    String conditionResourcePath = String.format("Bsa/%s/%s-Patient/%s-Condition.json", contentName, scenario, scenario);
+    String conditionResourcePath =
+        String.format("Bsa/%s/%s-Patient/%s-Condition.json", contentName, scenario, scenario);
     String conditionQueryString = String.format("/fhir/Condition/%s-Condition", scenario, scenario);
     mockResourceQuery(conditionResourcePath, conditionQueryString);
-    String encounterResourcePath = String.format("Bsa/%s/%s-Patient/%s-Encounter.json", contentName, scenario, scenario);
+    String encounterResourcePath =
+        String.format("Bsa/%s/%s-Patient/%s-Encounter.json", contentName, scenario, scenario);
     String encounterQueryString = String.format("/fhir/Encounter/%s-Encounter", scenario, scenario);
     mockResourceQuery(encounterResourcePath, encounterQueryString);
-    String observationResourcePath = String.format("Bsa/%s/%s-Patient/%s-Observation.json", contentName, scenario, scenario);
-    String observationQueryString = String.format("/fhir/Observation/%s-Observation", scenario, scenario);
+    String observationResourcePath =
+        String.format("Bsa/%s/%s-Patient/%s-Observation.json", contentName, scenario, scenario);
+    String observationQueryString =
+        String.format("/fhir/Observation/%s-Observation", scenario, scenario);
     mockResourceQuery(observationResourcePath, observationQueryString);
-    String patientResourcePath = String.format("Bsa/%s/%s-Patient/%s-Patient.json", contentName, scenario, scenario);
+    String patientResourcePath =
+        String.format("Bsa/%s/%s-Patient/%s-Patient.json", contentName, scenario, scenario);
     String patientQueryString = String.format("/fhir/Patient/%s-Patient", scenario, scenario);
     mockResourceQuery(patientResourcePath, patientQueryString);
   }
@@ -180,5 +194,4 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
     String absolutePath = notificationFile.getAbsolutePath();
     return ap.readBundleFromFile(absolutePath);
   }
-
 }

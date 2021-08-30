@@ -38,7 +38,7 @@ public abstract class WireMockQuery extends BaseIntegrationTest {
     WireMock.configureFor("localhost", wireMockHttpPort);
     wireMock = new WireMock("localhost", wireMockHttpPort);
 
-    mockFhirRead( "/fhir/metadata", getCapabilityStatement() );
+    mockFhirRead("/fhir/metadata", getCapabilityStatement());
   }
 
   @After

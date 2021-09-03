@@ -122,6 +122,18 @@ public abstract class WireMockQuery extends BaseIntegrationTest {
                 .withBody(body)));
   }
 
+  public void mockProcessMessageBundle(Bundle bundle) {
+    //$process-message-bundle
+    String path = "/fhir/process-message-bundle";
+    MappingBuilder builder = post(urlEqualTo(path));
+    stubFor(
+        builder.willReturn(
+            aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody(getFhirParser().encodeResourceToString(bundle))));
+  }
+
   public CapabilityStatement getCapabilityStatement() {
     CapabilityStatement metadata = new CapabilityStatement();
     metadata.setFhirVersion(Enumerations.FHIRVersion._4_0_1);

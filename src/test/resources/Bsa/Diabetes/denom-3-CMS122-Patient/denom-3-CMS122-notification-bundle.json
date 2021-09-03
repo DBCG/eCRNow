@@ -1,6 +1,6 @@
 {
     "resourceType" : "Bundle",
-    "id" : "denom-3-notification-bundle",
+    "id" : "denom-3-CMS122-notification-bundle",
     "meta" : {
         "lastUpdated":"2021-05-07T04:54:11.358+00:00",
       "profile" : [
@@ -59,10 +59,10 @@
         }
       },
       {
-        "fullUrl" : "http://localhost:9010/fhir/Encounter/denom-3-Encounter",
+        "fullUrl" : "http://localhost:9010/fhir/Encounter/denom-3-CMS122--Encounter",
         "resource" : {
           "resourceType" : "Encounter",
-          "id" : "denom-3-Encounter",
+          "id" : "denom-3-CMS122-Encounter",
           "text" : {
             "status" : "generated",
             "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative</b></p><p><b>status</b>: in-progress</p><p><b>class</b>: <span title=\"{http://terminology.hl7.org/CodeSystem/v3-ActCode VR}\">virtual</span></p><p><b>subject</b>: <a href=\"Bundle-notification-multi-resource.html#https-//example.org/fhir/r4/Patient/46db3334-dbf5-43f3-868f-93ae0883cce1\">Example Patient. Generated Summary: type: history; timestamp: May 29, 2020, 4:44:13 PM</a></p></div>"
@@ -73,7 +73,7 @@
             "code" : "VR"
           },
           "subject" : {
-            "reference" : "http://localhost:9010/fhir/Patient/denom-3-Patient",
+            "reference" : "http://localhost:9010/fhir/Patient/denom-3-CMS122-Patient",
             "display" : "Example Patient"
           }
         },

@@ -43,7 +43,7 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
   @Test
   public void getNotificationContextDiabetesNumerCMS122_2Test() {
     Bundle bund =
-        getNotificationBundle(
+        getBundle(
             "Bsa/Diabetes/numer-CMS122-2-Patient/numer-CMS122-2-notification-bundle.json");
 
     HttpServletRequest request = mock(HttpServletRequest.class);
@@ -52,6 +52,7 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
     setupHealthCareSettings();
     mockAccessToken();
     mockBasicEhrDataScenario("Diabetes", "numer-CMS122-2");
+    mockProcessMessageBundle(getBundle("Bsa/Diabetes/numer-CMS122-2-Patient/eicr-bundle.json"));
 
     notificationController.processNotification(
         getFhirParser().encodeResourceToString(bund), request, response);
@@ -60,7 +61,7 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
   @Test
   public void getNotificationContextDiabetesDenomCMS122_3Test() {
     Bundle bund =
-        getNotificationBundle(
+        getBundle(
             "Bsa/Diabetes/denom-3-CMS122-Patient/denom-3-CMS122-notification-bundle.json");
 
     HttpServletRequest request = mock(HttpServletRequest.class);
@@ -68,7 +69,21 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
 
     setupHealthCareSettings();
     mockAccessToken();
-    mockBasicEhrDataScenario("Diabetes", "denom-3-CMS122");
+    String scenario = "denom-3-CMS122";
+    String contentName = "Diabetes";
+
+    mockBasicEhrDataScenario(contentName, scenario);
+    
+    String resourcePathObservation =
+        String.format(
+            "Bsa/%s/%s-Patient/%s-%s.json", contentName, scenario, scenario, "Observation");
+    String resourcePathObservation2 = String.format(
+      "Bsa/%s/%s-Patient/%s-%s.json", contentName, scenario, scenario, "Observation2");
+            String queryString =
+        String.format("/fhir/%s/%s-%s", "Observation", scenario, "Observation2");
+    mockResourceQuery(resourcePathObservation2, queryString);
+    String searchByPatientQuery = String.format("/fhir/%s?patient=%s-Patient", "Observation", scenario);
+    mockSearchQuery(searchByPatientQuery, resourcePathObservation, resourcePathObservation2);
 
     notificationController.processNotification(
         getFhirParser().encodeResourceToString(bund), request, response);
@@ -77,7 +92,7 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
   @Test
   public void getNotificationContextDiabetesDenomCMS122Test() {
     Bundle bund =
-        getNotificationBundle(
+        getBundle(
             "Bsa/Diabetes/denom-CMS122-Patient/denom-CMS122-notification-bundle.json");
 
     HttpServletRequest request = mock(HttpServletRequest.class);
@@ -85,7 +100,20 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
 
     setupHealthCareSettings();
     mockAccessToken();
-    mockBasicEhrDataScenario("Diabetes", "denom-CMS122");
+    String contentName = "Diabetes";
+    String scenario = "denom-CMS122";
+    mockBasicEhrDataScenario(contentName, scenario);
+
+    String resourcePathObservation =
+        String.format(
+            "Bsa/%s/%s-Patient/%s-%s.json", contentName, scenario, scenario, "Observation");
+    String resourcePathObservation2 = String.format(
+      "Bsa/%s/%s-Patient/%s-%s.json", contentName, scenario, scenario, "Observation2");
+            String queryString =
+        String.format("/fhir/%s/%s-%s", "Observation", scenario, "Observation2");
+    mockResourceQuery(resourcePathObservation2, queryString);
+    String searchByPatientQuery = String.format("/fhir/%s?patient=%s-Patient", "Observation", scenario);
+    mockSearchQuery(searchByPatientQuery, resourcePathObservation, resourcePathObservation2);
 
     notificationController.processNotification(
         getFhirParser().encodeResourceToString(bund), request, response);
@@ -94,7 +122,7 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
   @Test
   public void getNotificationContextDiabetesDenomExclCMS122Test() {
     Bundle bund =
-        getNotificationBundle(
+        getBundle(
             "Bsa/Diabetes/denomexcl-CMS122-Patient/denomexcl-CMS122-notification-bundle.json");
 
     HttpServletRequest request = mock(HttpServletRequest.class);
@@ -102,7 +130,13 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
 
     setupHealthCareSettings();
     mockAccessToken();
-    // mockBasicEhrDataScenario("Diabetes", "denomexcl-CMS122");
+    String contentName = "Diabetes";
+    String scenario = "denomexcl-CMS122";
+    mockBasicResourceEhrDataScenario(contentName, scenario, "PrincipalProcedure");
+    mockBasicResourceEhrDataScenario(contentName, scenario, "Procedure");
+    mockBasicResourceEhrDataScenario(contentName, scenario, "Observation");
+    mockBasicResourceEhrDataScenario(contentName, scenario, "Encounter");
+    mockBasicResourceEhrDataScenario(contentName, scenario, "DiagnosticReport");
 
     notificationController.processNotification(
         getFhirParser().encodeResourceToString(bund), request, response);
@@ -111,7 +145,7 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
   @Test
   public void getNotificationContextDiabetesNumerCMS122Test() {
     Bundle bund =
-        getNotificationBundle(
+        getBundle(
             "Bsa/Diabetes/numer-CMS122-Patient/numer-CMS122-notification-bundle.json");
 
     HttpServletRequest request = mock(HttpServletRequest.class);
@@ -119,30 +153,51 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
 
     setupHealthCareSettings();
     mockAccessToken();
-    mockBasicEhrDataScenario("Diabetes", "numer-CMS122");
+    String contentName = "Diabetes";
+    String scenario = "numer-CMS122";
+    mockBasicEhrDataScenario(contentName, scenario);
+    
+    String resourcePathObservation =
+        String.format(
+            "Bsa/%s/%s-Patient/%s-%s.json", contentName, scenario, scenario, "Observation");
+    String resourcePathObservation2 = String.format(
+      "Bsa/%s/%s-Patient/%s-%s.json", contentName, scenario, scenario, "Observation2");
+            String queryString =
+        String.format("/fhir/%s/%s-%s", "Observation", scenario, "Observation2");
+    mockResourceQuery(resourcePathObservation2, queryString);
+    String searchByPatientQuery = String.format("/fhir/%s?patient=%s-Patient", "Observation", scenario);
+    mockSearchQuery(searchByPatientQuery, resourcePathObservation, resourcePathObservation2);
 
     notificationController.processNotification(
         getFhirParser().encodeResourceToString(bund), request, response);
   }
 
   private void mockBasicEhrDataScenario(String contentName, String scenario) {
-    String conditionResourcePath =
-        String.format("Bsa/%s/%s-Patient/%s-Condition.json", contentName, scenario, scenario);
-    String conditionQueryString = String.format("/fhir/Condition/%s-Condition", scenario, scenario);
-    mockResourceQuery(conditionResourcePath, conditionQueryString);
-    String encounterResourcePath =
-        String.format("Bsa/%s/%s-Patient/%s-Encounter.json", contentName, scenario, scenario);
-    String encounterQueryString = String.format("/fhir/Encounter/%s-Encounter", scenario, scenario);
-    mockResourceQuery(encounterResourcePath, encounterQueryString);
-    String observationResourcePath =
-        String.format("Bsa/%s/%s-Patient/%s-Observation.json", contentName, scenario, scenario);
-    String observationQueryString =
-        String.format("/fhir/Observation/%s-Observation", scenario, scenario);
-    mockResourceQuery(observationResourcePath, observationQueryString);
+    mockBasicResourceEhrDataScenario(contentName, scenario, "Condition");
+    mockBasicResourceEhrDataScenario(contentName, scenario, "Encounter");
+    mockBasicResourceEhrDataScenario(contentName, scenario, "Observation");
     String patientResourcePath =
         String.format("Bsa/%s/%s-Patient/%s-Patient.json", contentName, scenario, scenario);
     String patientQueryString = String.format("/fhir/Patient/%s-Patient", scenario, scenario);
     mockResourceQuery(patientResourcePath, patientQueryString);
+    String searchByPatientQuery = String.format("/fhir/%s?patient=%s-Patient", "Patient", scenario);
+    mockSearchQuery(searchByPatientQuery, patientResourcePath);
+    String searchByPatientMedReqQuery = String.format("/fhir/%s?patient=%s-Patient", "MedicationRequest", scenario);
+    mockSearchQuery(searchByPatientMedReqQuery, null);
+    String searchByPatientMeasureReportQuery = String.format("/fhir/%s?patient=%s-Patient", "MeasureReport", scenario);
+    mockSearchQuery(searchByPatientMeasureReportQuery, null);
+  }
+
+  private void mockBasicResourceEhrDataScenario(
+      String contentName, String scenario, String resourceType) {
+    String resourcePath =
+        String.format(
+            "Bsa/%s/%s-Patient/%s-%s.json", contentName, scenario, scenario, resourceType);
+    String queryString =
+        String.format("/fhir/%s/%s-%s", resourceType, scenario, resourceType);
+    mockResourceQuery(resourcePath, queryString);
+    String searchByPatientQuery = String.format("/fhir/%s?patient=%s-Patient", resourceType, scenario);
+    mockSearchQuery(searchByPatientQuery, resourcePath);
   }
 
   private void mockResourceQuery(String resourcePath, String mockQueryString) {
@@ -154,6 +209,23 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
     }
     Resource resource = (Resource) resourceBase;
     mockFhirRead(mockQueryString, resource);
+  }
+
+  private void mockSearchQuery(String mockQueryString, String... resourcePaths) {
+    if (resourcePaths != null) {
+      for (String resourcePath : resourcePaths) {
+        File resourceFile = new File(classLoader.getResource(resourcePath).getFile());
+        String resourceAbsolutePath = resourceFile.getAbsolutePath();
+        IBaseResource resourceBase = ap.readResourceFromFile(resourceAbsolutePath);
+        if (resourceBase == null || !(resourceBase instanceof Resource)) {
+          logger.debug("Resource not found.");
+        }
+        Resource resource = (Resource) resourceBase;
+        mockFhirSearch(mockQueryString, resource);
+      }
+    } else {
+      mockFhirSearch(mockQueryString, null);
+    }
   }
 
   private void setupHealthCareSettings() {
@@ -189,7 +261,7 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
             "{ \"access_token\": \"%s\", \n\"expires_in\": \"%s\" }", accessToken, expireTime));
   }
 
-  private Bundle getNotificationBundle(String notificationBundle) {
+  private Bundle getBundle(String notificationBundle) {
     File notificationFile = new File(classLoader.getResource(notificationBundle).getFile());
     String absolutePath = notificationFile.getAbsolutePath();
     return ap.readBundleFromFile(absolutePath);

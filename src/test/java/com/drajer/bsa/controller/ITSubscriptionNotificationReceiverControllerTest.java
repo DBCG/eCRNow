@@ -11,11 +11,16 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Resource;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,191 +45,528 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
 
   private ClassLoader classLoader = getClass().getClassLoader();
 
+  @Before
+  public void setupNotificationMocking() {
+    setupHealthCareSettings();
+    mockAccessToken();
+    File bsaFile = new File(classLoader.getResource("Bsa").getPath());
+    for (File file : bsaFile.listFiles()) {
+      if (file.isDirectory() && file.getName().equals("Scenarios")) {
+        mockScenarios(file.listFiles());
+      }
+    }
+  }
+
+  // BloodPressure
+
+  @Test
+  public void getNotificationContextBPReportDenomExcInTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/ControllingBloodPressure/bp-report-denom-exc-in/bp-report-denom-exc-in-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextBPReportIpInTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/ControllingBloodPressure/bp-report-ip-in/bp-report-ip-in-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextBPReportIpOutTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/ControllingBloodPressure/bp-report-ip-out/bp-report-ip-out-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextBPReportNumerInTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/ControllingBloodPressure/bp-report-numer-in/bp-report-numer-in-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextBPReportNumerOutTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/ControllingBloodPressure/bp-report-numer-out/bp-report-numer-out-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextBPTriggerConditionInTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/ControllingBloodPressure/bp-trigger-condition-in/bp-trigger-condition-in-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextBPTriggerConditionMissingTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/ControllingBloodPressure/bp-trigger-condition-missing/bp-trigger-condition-missing-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextBPTriggerConditionOutTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/ControllingBloodPressure/bp-trigger-condition-out/bp-trigger-condition-out-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextBPTriggerInTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/ControllingBloodPressure/bp-trigger-in/bp-trigger-in-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextBPTriggerOutTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/ControllingBloodPressure/bp-trigger-out/bp-trigger-out-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextDenomEXM165Test() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/ControllingBloodPressure/denom-EXM165/denom-EXM165-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextNumerEXM165Test() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/ControllingBloodPressure/numer-EXM165/numer-EXM165-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  // Diabetes
+
+  @Test
+  public void getNotificationContextDiabetesNumerCMS122Test() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/Diabetes/numer-CMS122-Patient/numer-CMS122-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
   @Test
   public void getNotificationContextDiabetesNumerCMS122_2Test() {
     Bundle bund =
         getBundle(
-            "Bsa/Diabetes/numer-CMS122-2-Patient/numer-CMS122-2-notification-bundle.json");
+            "Bsa/Scenarios/Diabetes/numer-CMS122-2-Patient/numer-CMS122-2-notification-bundle.json");
 
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    HttpServletResponse response = mock(HttpServletResponse.class);
-
-    setupHealthCareSettings();
-    mockAccessToken();
-    mockBasicEhrDataScenario("Diabetes", "numer-CMS122-2");
-    mockProcessMessageBundle(getBundle("Bsa/Diabetes/numer-CMS122-2-Patient/eicr-bundle.json"));
+    // mockProcessMessageBundle(getBundle("Bsa/Scenarios/Diabetes/numer-CMS122-2-Patient/eicr-bundle.json"));
 
     notificationController.processNotification(
-        getFhirParser().encodeResourceToString(bund), request, response);
-  }
-
-  @Test
-  public void getNotificationContextDiabetesDenomCMS122_3Test() {
-    Bundle bund =
-        getBundle(
-            "Bsa/Diabetes/denom-3-CMS122-Patient/denom-3-CMS122-notification-bundle.json");
-
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    HttpServletResponse response = mock(HttpServletResponse.class);
-
-    setupHealthCareSettings();
-    mockAccessToken();
-    String scenario = "denom-3-CMS122";
-    String contentName = "Diabetes";
-
-    mockBasicEhrDataScenario(contentName, scenario);
-    
-    String resourcePathObservation =
-        String.format(
-            "Bsa/%s/%s-Patient/%s-%s.json", contentName, scenario, scenario, "Observation");
-    String resourcePathObservation2 = String.format(
-      "Bsa/%s/%s-Patient/%s-%s.json", contentName, scenario, scenario, "Observation2");
-            String queryString =
-        String.format("/fhir/%s/%s-%s", "Observation", scenario, "Observation2");
-    mockResourceQuery(resourcePathObservation2, queryString);
-    String searchByPatientQuery = String.format("/fhir/%s?patient=%s-Patient", "Observation", scenario);
-    mockSearchQuery(searchByPatientQuery, resourcePathObservation, resourcePathObservation2);
-
-    notificationController.processNotification(
-        getFhirParser().encodeResourceToString(bund), request, response);
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
   }
 
   @Test
   public void getNotificationContextDiabetesDenomCMS122Test() {
     Bundle bund =
         getBundle(
-            "Bsa/Diabetes/denom-CMS122-Patient/denom-CMS122-notification-bundle.json");
-
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    HttpServletResponse response = mock(HttpServletResponse.class);
-
-    setupHealthCareSettings();
-    mockAccessToken();
-    String contentName = "Diabetes";
-    String scenario = "denom-CMS122";
-    mockBasicEhrDataScenario(contentName, scenario);
-
-    String resourcePathObservation =
-        String.format(
-            "Bsa/%s/%s-Patient/%s-%s.json", contentName, scenario, scenario, "Observation");
-    String resourcePathObservation2 = String.format(
-      "Bsa/%s/%s-Patient/%s-%s.json", contentName, scenario, scenario, "Observation2");
-            String queryString =
-        String.format("/fhir/%s/%s-%s", "Observation", scenario, "Observation2");
-    mockResourceQuery(resourcePathObservation2, queryString);
-    String searchByPatientQuery = String.format("/fhir/%s?patient=%s-Patient", "Observation", scenario);
-    mockSearchQuery(searchByPatientQuery, resourcePathObservation, resourcePathObservation2);
+            "Bsa/Scenarios/Diabetes/denom-CMS122-Patient/denom-CMS122-notification-bundle.json");
 
     notificationController.processNotification(
-        getFhirParser().encodeResourceToString(bund), request, response);
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextDiabetesDenomCMS122_3Test() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/Diabetes/denom-3-CMS122-Patient/denom-3-CMS122-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
   }
 
   @Test
   public void getNotificationContextDiabetesDenomExclCMS122Test() {
     Bundle bund =
         getBundle(
-            "Bsa/Diabetes/denomexcl-CMS122-Patient/denomexcl-CMS122-notification-bundle.json");
-
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    HttpServletResponse response = mock(HttpServletResponse.class);
-
-    setupHealthCareSettings();
-    mockAccessToken();
-    String contentName = "Diabetes";
-    String scenario = "denomexcl-CMS122";
-    mockBasicResourceEhrDataScenario(contentName, scenario, "PrincipalProcedure");
-    mockBasicResourceEhrDataScenario(contentName, scenario, "Procedure");
-    mockBasicResourceEhrDataScenario(contentName, scenario, "Observation");
-    mockBasicResourceEhrDataScenario(contentName, scenario, "Encounter");
-    mockBasicResourceEhrDataScenario(contentName, scenario, "DiagnosticReport");
+            "Bsa/Scenarios/Diabetes/denomexcl-CMS122-Patient/denomexcl-CMS122-notification-bundle.json");
 
     notificationController.processNotification(
-        getFhirParser().encodeResourceToString(bund), request, response);
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
   }
 
   @Test
-  public void getNotificationContextDiabetesNumerCMS122Test() {
+  public void getNotificationContextDiabetesReportDenomExcInTest() {
     Bundle bund =
         getBundle(
-            "Bsa/Diabetes/numer-CMS122-Patient/numer-CMS122-notification-bundle.json");
-
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    HttpServletResponse response = mock(HttpServletResponse.class);
-
-    setupHealthCareSettings();
-    mockAccessToken();
-    String contentName = "Diabetes";
-    String scenario = "numer-CMS122";
-    mockBasicEhrDataScenario(contentName, scenario);
-    
-    String resourcePathObservation =
-        String.format(
-            "Bsa/%s/%s-Patient/%s-%s.json", contentName, scenario, scenario, "Observation");
-    String resourcePathObservation2 = String.format(
-      "Bsa/%s/%s-Patient/%s-%s.json", contentName, scenario, scenario, "Observation2");
-            String queryString =
-        String.format("/fhir/%s/%s-%s", "Observation", scenario, "Observation2");
-    mockResourceQuery(resourcePathObservation2, queryString);
-    String searchByPatientQuery = String.format("/fhir/%s?patient=%s-Patient", "Observation", scenario);
-    mockSearchQuery(searchByPatientQuery, resourcePathObservation, resourcePathObservation2);
+            "Bsa/Scenarios/Diabetes/diabetes-report-denom-exc-in/report-denom-exc-in-notification-bundle.json");
 
     notificationController.processNotification(
-        getFhirParser().encodeResourceToString(bund), request, response);
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
   }
 
-  private void mockBasicEhrDataScenario(String contentName, String scenario) {
-    mockBasicResourceEhrDataScenario(contentName, scenario, "Condition");
-    mockBasicResourceEhrDataScenario(contentName, scenario, "Encounter");
-    mockBasicResourceEhrDataScenario(contentName, scenario, "Observation");
-    String patientResourcePath =
-        String.format("Bsa/%s/%s-Patient/%s-Patient.json", contentName, scenario, scenario);
-    String patientQueryString = String.format("/fhir/Patient/%s-Patient", scenario, scenario);
-    mockResourceQuery(patientResourcePath, patientQueryString);
-    String searchByPatientQuery = String.format("/fhir/%s?patient=%s-Patient", "Patient", scenario);
-    mockSearchQuery(searchByPatientQuery, patientResourcePath);
-    String searchByPatientMedReqQuery = String.format("/fhir/%s?patient=%s-Patient", "MedicationRequest", scenario);
-    mockSearchQuery(searchByPatientMedReqQuery, null);
-    String searchByPatientMeasureReportQuery = String.format("/fhir/%s?patient=%s-Patient", "MeasureReport", scenario);
-    mockSearchQuery(searchByPatientMeasureReportQuery, null);
+  @Test
+  public void getNotificationContextDiabetesReportIpInTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/Diabetes/diabetes-report-ip-in/report-ip-in-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
   }
 
-  private void mockBasicResourceEhrDataScenario(
-      String contentName, String scenario, String resourceType) {
-    String resourcePath =
-        String.format(
-            "Bsa/%s/%s-Patient/%s-%s.json", contentName, scenario, scenario, resourceType);
-    String queryString =
-        String.format("/fhir/%s/%s-%s", resourceType, scenario, resourceType);
-    mockResourceQuery(resourcePath, queryString);
-    String searchByPatientQuery = String.format("/fhir/%s?patient=%s-Patient", resourceType, scenario);
-    mockSearchQuery(searchByPatientQuery, resourcePath);
+  @Test
+  public void getNotificationContextDiabetesReportIpOutTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/Diabetes/diabetes-report-ip-out/report-ip-out-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
   }
 
-  private void mockResourceQuery(String resourcePath, String mockQueryString) {
-    File resourceFile = new File(classLoader.getResource(resourcePath).getFile());
+  @Test
+  public void getNotificationContextDiabetesReportNumerInTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/Diabetes/diabetes-report-numer-in/report-numer-in-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextDiabetesReportNumerOutTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/Diabetes/diabetes-report-numer-out/report-numer-out-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextDiabetesTriggerConditionInTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/Diabetes/diabetes-trigger-condition-in/trigger-condition-in-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextDiabetesTriggerConditionMissingTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/Diabetes/diabetes-trigger-condition-missing/trigger-condition-missing-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextDiabetesTriggerConditionOutTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/Diabetes/diabetes-trigger-condition-out/trigger-condition-out-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextDiabetesTriggerInTest() {
+    Bundle bund =
+        getBundle("Bsa/Scenarios/Diabetes/diabetes-trigger-in/trigger-in-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextDiabetesTriggerOutTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/Diabetes/diabetes-trigger-out/trigger-out-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  // SeenPatients
+
+  @Test
+  public void getNotificationContextIpSeenPatientsTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/SeenPatients/ip-SeenPatients/ip-SeenPatients-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextSeenPatientsNoTriggerInTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/SeenPatients/seen-patients-no-trigger-in/seen-patients-no-trigger-in-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextSeenPatientsReportedIpMpInHighTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/SeenPatients/seen-patients-reported-ip-mp-in-high/seen-patients-reported-ip-mp-in-high-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextSeenPatientsReportedIpMpInLowTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/SeenPatients/seen-patients-reported-ip-mp-in-low/seen-patients-reported-ip-mp-in-low-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextSeenPatientsReportedIpMpInMidTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/SeenPatients/seen-patients-reported-ip-mp-in-mid/seen-patients-reported-ip-mp-in-mid-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextSeenPatientsReportedIpMpOutPostTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/SeenPatients/seen-patients-reported-ip-mp-out-post/seen-patients-reported-ip-mp-out-post-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextSeenPatientsReportedIpMpOutPriorTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/SeenPatients/seen-patients-reported-ip-mp-out-prior/seen-patients-reported-ip-mp-out-prior-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextSeenPatientsSDEInTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/SeenPatients/seen-patients-sde-in/seen-patients-sde-in-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  @Test
+  public void getNotificationContextSeenPatientsTriggerInTest() {
+    Bundle bund =
+        getBundle(
+            "Bsa/Scenarios/SeenPatients/seen-patients-trigger-in/seen-patients-trigger-in-notification-bundle.json");
+
+    notificationController.processNotification(
+        getFhirParser().encodeResourceToString(bund),
+        mock(HttpServletRequest.class),
+        mock(HttpServletResponse.class));
+  }
+
+  Map<String, List<Resource>> resourceMap = new HashMap<String, List<Resource>>();
+
+  private void mockScenarios(File[] listFiles) {
+    mockScenarios(listFiles, true);
+  }
+
+  private void mockScenarios(File[] scenarios, boolean isTopLevel) {
+    for (File file : scenarios) {
+      if (file.isDirectory()) {
+        mockScenarios(file.listFiles(), false);
+        if (isTopLevel) {
+          mockSearchQuery();
+          resourceMap.clear();
+        }
+      } else if (file.isFile()) {
+        mockResourceQuery(file);
+      } else {
+        logger.debug("Scenario file not found: " + file.getAbsolutePath());
+      }
+    }
+  }
+
+  private void mockResourceQuery(File resourceFile) {
     String resourceAbsolutePath = resourceFile.getAbsolutePath();
     IBaseResource resourceBase = ap.readResourceFromFile(resourceAbsolutePath);
     if (resourceBase == null || !(resourceBase instanceof Resource)) {
       logger.debug("Resource not found.");
     }
     Resource resource = (Resource) resourceBase;
-    mockFhirRead(mockQueryString, resource);
+    if (!resourceMap.containsKey(resource.fhirType())) {
+      resourceMap.put(resource.fhirType(), List.of(resource));
+    } else {
+      List<Resource> resourceList = new ArrayList<Resource>();
+      resourceList.addAll(resourceMap.get(resource.fhirType()));
+      resourceList.add(resource);
+      resourceMap.put(resource.fhirType(), resourceList);
+    }
+    String resourceType = resource.fhirType();
+    String id = resource.getIdElement().getIdPart();
+    String queryString = String.format("/fhir/%s/%s", resourceType, id);
+    mockFhirRead(queryString, resource);
   }
 
-  private void mockSearchQuery(String mockQueryString, String... resourcePaths) {
-    if (resourcePaths != null) {
-      for (String resourcePath : resourcePaths) {
-        File resourceFile = new File(classLoader.getResource(resourcePath).getFile());
-        String resourceAbsolutePath = resourceFile.getAbsolutePath();
-        IBaseResource resourceBase = ap.readResourceFromFile(resourceAbsolutePath);
-        if (resourceBase == null || !(resourceBase instanceof Resource)) {
-          logger.debug("Resource not found.");
-        }
-        Resource resource = (Resource) resourceBase;
-        mockFhirSearch(mockQueryString, resource);
+  private void mockSearchQuery() {
+    List<String> patientIds = new ArrayList<String>();
+    List<Resource> patients = resourceMap.get("Patient");
+    if (patients != null && !patients.isEmpty()) {
+      patients.forEach(patient -> patientIds.add(patient.getIdElement().getIdPart()));
+    }
+    if (!patientIds.isEmpty()) {
+      for (String patientId : patientIds) {
+        resourceMap
+            .entrySet()
+            .forEach(
+                entry -> {
+                  List<Resource> resources = new ArrayList<Resource>();
+                  entry
+                      .getValue()
+                      .forEach(
+                          resource -> {
+                            if (getFhirParser()
+                                .encodeResourceToString(resource)
+                                .contains(patientId)) {
+                              resources.add(resource);
+                            }
+                          });
+                  String mockQueryString =
+                      String.format("/fhir/%s?patient=%s", entry.getKey(), patientId);
+                  mockFhirSearch(mockQueryString, resources);
+                });
       }
-    } else {
-      mockFhirSearch(mockQueryString, null);
     }
   }
 

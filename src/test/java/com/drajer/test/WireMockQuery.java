@@ -18,8 +18,8 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.CapabilityStatement;
 import org.hl7.fhir.r4.model.Enumerations;
 import org.hl7.fhir.r4.model.Resource;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.jupiter.api.AfterAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,16 +34,26 @@ public abstract class WireMockQuery extends BaseIntegrationTest {
 
   @Before
   public void start() {
+    if (wireMockServer.isRunning()) {
+      wireMockServer.stop();
+      logger.debug("WireMock server stopped.");
+    }
     wireMockServer.start();
+    logger.debug("WireMock server started.");
     WireMock.configureFor("localhost", wireMockHttpPort);
     wireMock = new WireMock("localhost", wireMockHttpPort);
 
     mockFhirRead("/fhir/metadata", getCapabilityStatement());
   }
 
-  @After
+  @AfterAll
   public void stop() {
-    wireMockServer.stop();
+    if (wireMock != null) {
+      wireMockServer.stop();
+      logger.debug("WireMock server stopped.");
+    } else {
+      logger.debug("WireMock server never started.");
+    }
   }
 
   public FhirContext getFhirContext() {
@@ -79,6 +89,11 @@ public abstract class WireMockQuery extends BaseIntegrationTest {
   public void mockFhirRead(String path, Resource resource, int statusCode) {
     MappingBuilder builder = get(urlEqualTo(path));
     mockFhirInteraction(builder, resource, statusCode);
+  }
+
+  public void mockFhirSearch(String path, List<Resource> resources) {
+    MappingBuilder builder = get(urlEqualTo(path));
+    mockFhirInteraction(builder, makeBundle(resources));
   }
 
   public void mockFhirSearch(String path, Resource... resources) {
@@ -123,7 +138,7 @@ public abstract class WireMockQuery extends BaseIntegrationTest {
   }
 
   public void mockProcessMessageBundle(Bundle bundle) {
-    //$process-message-bundle
+    // $process-message-bundle
     String path = "/fhir/process-message-bundle";
     MappingBuilder builder = post(urlEqualTo(path));
     stubFor(

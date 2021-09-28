@@ -62,20 +62,62 @@
         "fullUrl" : "http://localhost:9010/fhir/Encounter/denomexcl-CMS122-Encounter",
         "resource" : {
           "resourceType" : "Encounter",
-          "id" : "denomexcl-CMS122-Encounter",
+          "id": "denomexcl-CMS122-Encounter",
           "text" : {
-            "status" : "generated",
-            "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative</b></p><p><b>status</b>: in-progress</p><p><b>class</b>: <span title=\"{http://terminology.hl7.org/CodeSystem/v3-ActCode VR}\">virtual</span></p><p><b>subject</b>: <a href=\"Bundle-notification-multi-resource.html#https-//example.org/fhir/r4/Patient/46db3334-dbf5-43f3-868f-93ae0883cce1\">Example Patient. Generated Summary: type: history; timestamp: May 29, 2020, 4:44:13 PM</a></p></div>"
+          "status" : "generated"
           },
-          "status" : "in-progress",
-          "class" : {
-            "system" : "http://terminology.hl7.org/CodeSystem/v3-ActCode",
-            "code" : "VR"
+          "status" : "finished",
+          "class": {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+              "code": "IMP",
+              "display": "inpatient encounter"
           },
-          "subject" : {
-            "reference" : "http://localhost:9010/fhir/Patient/denomexcl-CMS122-Patient",
-            "display" : "Example Patient"
+          "type" : [
+          {
+              "coding" : [
+              {
+                  "system" : "http://snomed.info/sct",
+                  "code" : "32485007",
+                  "display" : "Encounter Inpatient"
+              }
+              ],
+              "text" : "Inpatient Admission"
           }
+          ],
+          "subject" : {
+          "reference" : "Patient/denomexcl-CMS122-Patient"
+          },
+          "period" : {
+          "start" : "2019-01-16T08:30:00",
+          "end" : "2019-01-20T08:30:00"
+          },
+          "hospitalization": {
+            "dischargeDisposition": {
+                "coding": [
+                  {
+                    "system": "http://snomed.info/sct",
+                    "code": "428361000124107",
+                    "display": "Discharge to home for hospice care (procedure)"
+                  }
+                ]
+            }
+          },
+          "diagnosis": [
+              {
+                "condition": {
+                  "display": "Cardiac arrest as a complication of care (disorder)"
+                },
+                "use": {
+                  "coding": [
+                    {
+                      "system": "2.16.840.1.113883.6.96",
+                      "code": "213213007",
+                      "display": "Cardiopulmonary arrest"
+                    }
+                  ]
+                }
+              }
+          ]
         },
         "request" : {
           "method" : "POST",
@@ -87,4 +129,3 @@
       }
     ]
   }
-  

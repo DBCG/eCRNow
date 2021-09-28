@@ -1,35 +1,64 @@
 package com.drajer.bsa.controller;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.findAll;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 import com.drajer.bsa.dao.HealthcareSettingsDao;
 import com.drajer.bsa.model.HealthcareSetting;
 import com.drajer.bsa.scheduler.ScheduleJobConfiguration;
+import com.drajer.ecrapp.model.Eicr;
 import com.drajer.ecrapp.util.ApplicationUtils;
 import com.drajer.test.WireMockQuery;
+import com.drajer.test.util.EicrValidation;
+import com.drajer.test.util.TestDataGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.ParserConfigurationException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Parameters;
+import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
 import org.hl7.fhir.r4.model.Resource;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
+import org.xml.sax.SAXException;
 
 @ContextConfiguration(classes = ScheduleJobConfiguration.class)
+@RunWith(Parameterized.class)
 public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQuery {
+
+  protected String testCaseId;
+  protected Map<String, String> testData;
+  protected List<Map<String, String>> fieldsToValidate;
+
+  public ITSubscriptionNotificationReceiverControllerTest(
+      String testCaseId, Map<String, String> testData, List<Map<String, String>> validateFields) {
+    this.testCaseId = testCaseId;
+    this.testData = testData;
+    this.fieldsToValidate = validateFields;
+  }
 
   private Logger logger =
       LoggerFactory.getLogger(ITSubscriptionNotificationReceiverControllerTest.class);
@@ -45,8 +74,35 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
 
   private ClassLoader classLoader = getClass().getClassLoader();
 
+  @Parameterized.Parameters(name = "{0}")
+  public static Collection<Object[]> data() {
+
+    List<TestDataGenerator> testDataGenerator = new ArrayList<>();
+    testDataGenerator.add(new TestDataGenerator("test-yaml/encounterSection.yaml"));
+
+    int totalTestCount = 0;
+    for (TestDataGenerator testData : testDataGenerator) {
+      totalTestCount = totalTestCount + testData.getAllTestCases().size();
+    }
+
+    Object[][] data = new Object[totalTestCount][3];
+
+    int count = 0;
+    for (TestDataGenerator testData : testDataGenerator) {
+      Set<String> testCaseSet = testData.getAllTestCases();
+      for (String testCase : testCaseSet) {
+        data[count][0] = testCase;
+        data[count][1] = testData.getTestCaseByID(testCase).getTestData();
+        data[count][2] = testData.getValidate(testCase);
+        count++;
+      }
+    }
+    return Arrays.asList(data);
+  }
+
   @Before
-  public void setupNotificationMocking() {
+  public void setupNotificationMocking() throws IOException {
+    logger.info("Executing Test: {}", testCaseId);
     setupHealthCareSettings();
     mockAccessToken();
     File bsaFile = new File(classLoader.getResource("Bsa").getPath());
@@ -253,6 +309,27 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
         getFhirParser().encodeResourceToString(bund),
         mock(HttpServletRequest.class),
         mock(HttpServletResponse.class));
+
+    String processMessageUrl = "/fhir/$process-message-bundle";
+
+    List<LoggedRequest> requests = findAll(postRequestedFor(urlEqualTo(processMessageUrl)));
+    for (LoggedRequest request : requests) {
+      Bundle bundle = null;
+      Parameters parameters =
+          getFhirParser().parseResource(Parameters.class, request.getBodyAsString());
+      for (ParametersParameterComponent parameter : parameters.getParameter()) {
+        if (parameter.hasResource() && parameter.getResource().fhirType().equals("Bundle")) {
+          bundle = (Bundle) parameter.getResource();
+          Eicr eicr = new Eicr();
+          eicr.setEicrData(getFhirContext().newXmlParser().encodeResourceToString(bundle));
+          try {
+            EicrValidation.validateEicrDocument(eicr.getEicrData(), testData, fieldsToValidate);
+          } catch (ParserConfigurationException | SAXException | IOException e) {
+            fail("Invalid Eicr");
+          }
+        }
+      }
+    }
   }
 
   @Test
@@ -507,11 +584,19 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
       if (file.isDirectory()) {
         mockScenarios(file.listFiles(), false);
         if (isTopLevel) {
-          mockSearchQuery();
+          try {
+            mockSearchQuery();
+          } catch (Exception e) {
+            logger.debug(" Unable to mock Search Query: ::::{}", e);
+          }
           resourceMap.clear();
         }
       } else if (file.isFile()) {
-        mockResourceQuery(file);
+        try {
+          mockResourceQuery(file);
+        } catch (Exception e) {
+          logger.debug(" Unable to mock Resource Query: ::::{}", e);
+        }
       } else {
         logger.debug("Scenario file not found: " + file.getAbsolutePath());
       }
@@ -523,20 +608,21 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
     IBaseResource resourceBase = ap.readResourceFromFile(resourceAbsolutePath);
     if (resourceBase == null || !(resourceBase instanceof Resource)) {
       logger.debug("Resource not found.");
-    }
-    Resource resource = (Resource) resourceBase;
-    if (!resourceMap.containsKey(resource.fhirType())) {
-      resourceMap.put(resource.fhirType(), List.of(resource));
     } else {
-      List<Resource> resourceList = new ArrayList<Resource>();
-      resourceList.addAll(resourceMap.get(resource.fhirType()));
-      resourceList.add(resource);
-      resourceMap.put(resource.fhirType(), resourceList);
+      Resource resource = (Resource) resourceBase;
+      if (!resourceMap.containsKey(resource.fhirType())) {
+        resourceMap.put(resource.fhirType(), List.of(resource));
+      } else {
+        List<Resource> resourceList = new ArrayList<Resource>();
+        resourceList.addAll(resourceMap.get(resource.fhirType()));
+        resourceList.add(resource);
+        resourceMap.put(resource.fhirType(), resourceList);
+      }
+      String resourceType = resource.fhirType();
+      String id = resource.getIdElement().getIdPart();
+      String queryString = String.format("/fhir/%s/%s", resourceType, id);
+      mockFhirRead(queryString, resource);
     }
-    String resourceType = resource.fhirType();
-    String id = resource.getIdElement().getIdPart();
-    String queryString = String.format("/fhir/%s/%s", resourceType, id);
-    mockFhirRead(queryString, resource);
   }
 
   private void mockSearchQuery() {

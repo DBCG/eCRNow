@@ -1,10 +1,15 @@
 package com.drajer.bsa.kar.action;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.context.FhirVersionEnum;
 import com.drajer.bsa.ehr.service.EhrQueryService;
 import com.drajer.bsa.kar.model.BsaAction;
 import com.drajer.bsa.model.KarProcessingData;
 import com.drajer.bsa.utils.BsaServiceUtils;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.hl7.fhir.r4.model.Resource;
@@ -24,8 +29,6 @@ public class SubmitReport extends BsaAction {
 
   @Autowired BsaServiceUtils serviceUtils;
 
-  private static final FhirContext context = FhirContext.forR4();
-
   @Override
   public BsaActionStatus process(KarProcessingData data, EhrQueryService ehrService) {
 
@@ -42,6 +45,9 @@ public class SubmitReport extends BsaAction {
       for (Map.Entry<String, Resource> resEnt : resOutput.entrySet()) {
 
         logger.info(" Submitting Data to file for {}", resEnt.getKey());
+
+        // TODO replace with  once spring configuration is figured out.
+        saveResourceToFile(resEnt.getValue());
         serviceUtils.saveResourceToClient(resEnt.getValue());
       }
     }
@@ -51,5 +57,32 @@ public class SubmitReport extends BsaAction {
 
   public void setBsaUtils(BsaServiceUtils utils) {
     this.serviceUtils = utils;
+  }
+
+  private static int count = 1;
+
+  public void saveResourceToFile(Resource res) {
+
+    String fileName =
+        "target//output//kars"
+            + res.getResourceType().toString()
+            + "_"
+            + res.getId()
+            + "_"
+            + count
+            + ".json";
+
+    String data =
+        FhirContext.forCached(FhirVersionEnum.R4).newJsonParser().encodeResourceToString(res);
+
+    try (DataOutputStream outStream =
+        new DataOutputStream(new BufferedOutputStream(new FileOutputStream(fileName)))) {
+
+      logger.info(" Writing data to file: {}", fileName);
+      outStream.writeBytes(data);
+      count++;
+    } catch (IOException e) {
+      logger.debug(" Unable to write data to file: {}", fileName, e);
+    }
   }
 }

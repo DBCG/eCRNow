@@ -25,23 +25,21 @@ public abstract class EicrValidation {
   public static void validateEicrCDA(
       String eICRXml, Map<String, String> testData, List<Map<String, String>> fieldsToValidate)
       throws ParserConfigurationException, SAXException, IOException {
-        validateEicrDocument(eICRXml, testData, fieldsToValidate);
+    validateEicrDocument(eICRXml, testData, fieldsToValidate);
     assertTrue(
-          "Schema Validation Failed, check the logs",
-          CdaValidatorUtil.validateEicrXMLData(eICRXml));
-      assertTrue(
-          "Schematron Validation Failed, check the logs",
-          CdaValidatorUtil.validateEicrToSchematron(eICRXml));
-          
+        "Schema Validation Failed, check the logs", CdaValidatorUtil.validateEicrXMLData(eICRXml));
+    assertTrue(
+        "Schematron Validation Failed, check the logs",
+        CdaValidatorUtil.validateEicrToSchematron(eICRXml));
   }
 
   public static void validateEicrDocument(
       String eICRXml, Map<String, String> testData, List<Map<String, String>> fieldsToValidate)
       throws ParserConfigurationException, SAXException, IOException {
-        assertNotNull(eICRXml);
-        assertFalse(eICRXml.isEmpty());
-        Document eicrXmlDoc = TestUtils.getXmlDocument(eICRXml);
-        validateXml(eicrXmlDoc, testData, fieldsToValidate);
+    assertNotNull(eICRXml);
+    assertFalse(eICRXml.isEmpty());
+    Document eicrXmlDoc = TestUtils.getXmlDocument(eICRXml);
+    validateXml(eicrXmlDoc, testData, fieldsToValidate);
   }
 
   private static void validateXml(

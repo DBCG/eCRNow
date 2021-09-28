@@ -78,7 +78,8 @@ public class ITSubscriptionNotificationReceiverControllerTest extends WireMockQu
   public static Collection<Object[]> data() {
 
     List<TestDataGenerator> testDataGenerator = new ArrayList<>();
-    testDataGenerator.add(new TestDataGenerator("test-yaml/encounterSection.yaml"));
+    testDataGenerator.add(
+        new TestDataGenerator("test-yaml/denom-CMS122-ObservationEICRValidation.yaml"));
 
     int totalTestCount = 0;
     for (TestDataGenerator testData : testDataGenerator) {

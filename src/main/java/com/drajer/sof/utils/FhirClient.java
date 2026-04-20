@@ -252,4 +252,9 @@ public class FhirClient implements IGenericClient {
     this.interceptor.reset();
     return this.client.vread(theType, theId, theVersionId);
   }
+
+  @Override
+  public ca.uhn.fhir.rest.gclient.IRawHttp rawHttpRequest() {
+    return this.client.rawHttpRequest();
+  }
 }
